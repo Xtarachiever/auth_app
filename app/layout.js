@@ -12,15 +12,15 @@ export default function RootLayout({ children, session }) {
   return (
     <html lang="en">
       <Provider session={session}>
-        <body className='h-screen'>
-          <div className='flex py-[20px] bg-blue-400'>
+        <body className='h-screen bg-blue-400'>
+          <div className='flex py-[20px] h-full'>
             <div className='m-auto bg-slate-50 rounded-md w-4/5 h-3/4 grid lg:grid-cols-2'>
               <div className={styles.imgStyle}>
                 <div className={styles.cartoonImg}></div>
                 <div className={styles.cloud_one}></div>
                 <div className={styles.cloud_two}></div>
               </div>
-              <div className='right flex flex-col justify-evenly'>
+              <div className='right flex flex-col justify-evenly bg-white'>
                 <div className='text-center py-10'>
                     {children}
                 </div>

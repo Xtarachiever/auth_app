@@ -1,35 +1,36 @@
 
-import connectMongo from '../../../../database/conn';
+import { connectToDB } from '../../../../database/conn';
 import Users from '../../../../model/Schema';
 import { hash } from 'bcryptjs';
+import { NextResponse } from 'next/server';
 
 export async function POST(req,res){
-    connectMongo().catch(error => res.json({ error: "Connection Failed...!"}))
-
-
     // only post method is accepted
+    // const reqBody = await req.json();
+    // console.log(reqBody)
     if(req.method === 'POST'){
+        try {
+            await connectToDB();
+            const reqBody = await req.json();
+            const { username, email, password } = reqBody
 
-    if(!req.body) return new Response(JSON.stringify({ message: "Don't have form data...!"}),{
-        status:404
-    });
+            // if no body in the request
+            if(!reqBody) return NextResponse.json({error: "Don't have a request body", success: false}, {status: 404, statusText:"Don't have form data..."});
 
-        
-    //     if(!req.body) return res.status(404).json({ error: "Don't have form data...!"});
-    //     const { username, email, password } = req.body;
+            // check duplicate users
+            const checkexisting = await Users.findOne({ email });
+            if(checkexisting) return NextResponse.json({error: "User already exists", success: false}, {status: 422, statusText:'User already exists...'});
 
-    //     // check duplicate users
-    //     const checkexisting = await Users.findOne({ email });
-    //     if(checkexisting) return res.status(422).json({ message: "User Already Exists...!"});
+            // hash password
+            Users.create({ username, email, password : await hash(password, 12)}, function(err, data){
+                if(err) return NextResponse.json({ err },{status:404});
+                return NextResponse.json({ status : true, user: data},{status:201})
+            })
 
-    //     // hash password
-    //     Users.create({ username, email, password : await hash(password, 12)}, function(err, data){
-    //         if(err) return res.status(404).json({ err });
-    //         res.status(201).json({ status : true, user: data})
-    //     })
-
-    // } else{
-    //     res.status(500).json({ message: "HTTP method not valid only POST Accepted"})
+            } catch(err) {
+                // console.log(err)
+            return NextResponse.json({error: err, success: false}, {status: 500, statusText:err});
+        }
     }
 
 }

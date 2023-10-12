@@ -29,6 +29,7 @@ const Login = () => {
       password:values.password,
       callbackUrl:'/'
     })
+    console.log(status)
     if(status.ok) router.push(status.url)
   }
 

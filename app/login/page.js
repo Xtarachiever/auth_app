@@ -7,9 +7,12 @@ import { useState } from "react";
 import { signIn, signOut } from "next-auth/react";
 import { useFormik } from "formik";
 import login_validate from "@/lib/validate";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
   const [show, setShow] = useState(false);
+  const router = useRouter();
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -20,7 +23,13 @@ const Login = () => {
   });
 
   async function onSubmit(values) {
-    console.log(values);
+    const status = await signIn('credentials',{
+      redirect:false,
+      email: values.email,
+      password:values.password,
+      callbackUrl:'/'
+    })
+    if(status.ok) router.push(status.url)
   }
 
   async function handleGoogleSignIn() {
@@ -64,7 +73,7 @@ const Login = () => {
               <HiFingerPrint size={25} onClick={() => setShow(!show)} />
             </span>
           </div>
-          {/* {formik.errors.password && formik.touched.password ? <span className="text-rose-500">{formik.errors.password}</span>:<></>} */}
+          {formik.errors.password && formik.touched.password ? <span className="text-rose-500">{formik.errors.password}</span>:<></>}
           {/* Login buttons */}
           <div className={styles.input_button}>
             <button type="submit" className={styles.button}>
